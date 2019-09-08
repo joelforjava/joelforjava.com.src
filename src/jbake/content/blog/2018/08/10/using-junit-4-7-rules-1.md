@@ -5,7 +5,7 @@ tags=java,junit,junit4,junit47
 status=published
 ~~~~~~
 
-In a [previous post](/blog/2018/07/09/testing-unit-testing-with-mockito-and-powermock.html), I wrote a unit test using JUnit 4.12 that unfortunately made use of what I believed to be unneeded uses of Mockito and PowerMockito. These tests were written with an earlier Junit 4 mindset, a mindset that was unaware of <a href="https://www.testwithspring.com/lesson/introduction-to-junit-4-rules/" rel="noopener" target="_blank">JUnit Rules</a>. Now that I've had some time to look around some, I'm going to rewrite the tests making use of the TemporaryFolder Rule.
+In a [previous post](/blog/2018/07/09/unit-testing-with-mockito-and-powermock.html), I wrote a unit test using JUnit 4.12 that unfortunately made use of what I believed to be unneeded uses of Mockito and PowerMockito. These tests were written with an earlier Junit 4 mindset, a mindset that was unaware of <a href="https://www.testwithspring.com/lesson/introduction-to-junit-4-rules/" rel="noopener" target="_blank">JUnit Rules</a>. Now that I've had some time to look around some, I'm going to rewrite the tests making use of the TemporaryFolder Rule.
 
 The `TemporaryFolder` rule allows us to create folders and files that are deleted after a test is completed. I realize this is something that I could have likely done without the Rule and even prior to my mocking, but using the Rule makes it far easier to work with and performs the cleanup seamlessly.
 

@@ -5,7 +5,7 @@ tags=java,refactoring,carmix-collector
 status=published
 ~~~~~~
 
-In a previous [post](/blog/2018/05/29/refactoring-extract-class-part-1.html), I began refactoring the [carmix-collector](/blog/2018/04/19/introducing-the-carmix-collector-project.html) project. While its function is fairly simple, it had one class trying to do all the work which, among other things, makes the code terribly hard to test. In this post, I will be doing another refactoring that might take a minute to work out, but we will back up and try something new, if needed.
+In a previous [post](/blog/2018/05/29/refactoring-extract-class-part-1.html), I began refactoring the [carmix-collector](/blog/2018/04/19/introducing-carmix-collector-project.html) project. While its function is fairly simple, it had one class trying to do all the work which, among other things, makes the code terribly hard to test. In this post, I will be doing another refactoring that might take a minute to work out, but we will back up and try something new, if needed.
 
 I start by creating a new playlist processor class, `M3UPlaylistProcessor`. Its purpose will be to process the selected playlist file. Inside the new class, I create a new method, `process` that will contain the body of the existing `processPlaylistPath` method from the GUI class. I think naming the method `process` is a bit better than `processPlaylistPath` since the class name makes 'Playlist' redundant and the `Path` method parameter makes it clear we are processing a Path.
 

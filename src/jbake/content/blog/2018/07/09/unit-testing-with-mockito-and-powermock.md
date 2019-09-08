@@ -9,7 +9,7 @@ Testing your code is an important step in the software development lifecycle and
 
 <!--more-->
 
-Now that `carmix-creator` has been [refactored](/blog/2018/06/05/refactoring-extract-class-part-2/) a bit, it's time to finally start adding some tests to make sure it all works the way it is expected to work.
+Now that `carmix-creator` has been [refactored](/blog/2018/06/05/refactoring-extract-class-part-2.html) a bit, it's time to finally start adding some tests to make sure it all works the way it is expected to work.
 
 There are at least three main types of tests that should be performed before a project or release goes live: unit tests, integration tests, and functional tests.<span id="read-more-1"></span> For now, we will focus on unit testing and work toward integration tests in a future post.
 

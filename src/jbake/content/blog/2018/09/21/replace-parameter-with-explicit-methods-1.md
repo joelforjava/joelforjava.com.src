@@ -5,7 +5,7 @@ tags=java,refactoring,carmix-creator
 status=published
 ~~~~~~
 
-As I continue to refactor and refine my <a href="/blog/2018/04/19/introducing-the-carmix-collector-project.html">carmix-collector</a> project, I've come across a method that I really don't like. It looks too busy and depends on two separate parameters to determine what work should be done inside the method. Here's the method as it currently exists:
+As I continue to refactor and refine my <a href="/blog/2018/04/19/introducing-carmix-collector-project.html">carmix-collector</a> project, I've come across a method that I really don't like. It looks too busy and depends on two separate parameters to determine what work should be done inside the method. Here's the method as it currently exists:
 
 <?prettify?>
 

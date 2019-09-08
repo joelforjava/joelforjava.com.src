@@ -17,15 +17,10 @@ I did not write the initial modifications of the code, but I did write the updat
 
 If we were simply running a connector per topic, we could’ve just updated the handling of the deliveryStream property to handle multiple values. Also, maybe things could’ve been handled differently on the Firehose side of things. I had zero input or insight into how or why certain things were decided for Firehose Streams, nor did I really know enough about it o help make those decisions. I think the solution we ultimately came up with works well for the work we need performed.
 
-<figure>
-<pre class="prettyprint">
-`
-topics=GOLD.TOPIC
-deliveryStreamNames=GOLD-STREAM,ES-GOLD-STREAM        
-`
-</pre>
-<figcaption>Figure 1-1: A possible solution if all topics were going to multiple streams or only one topic to multiple streams</figcaption>
-</figure>
+<?prettify?>
+
+    topics=GOLD.TOPIC
+    deliveryStreamNames=GOLD-STREAM,ES-GOLD-STREAM        
 
 I have forked the kinesis-kaka-connector from GitHub so that I can demonstrate the stages in which we found ourselves. Note that due to constraints with my job, this code is not exactly the same as that which was written originally, but it still conveys the same point.
 
