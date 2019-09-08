@@ -26,3 +26,5 @@ build/
 output/
 *.bak
 .DS_Store
+.gradle/
+.idea/
