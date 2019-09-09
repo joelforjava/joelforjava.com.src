@@ -52,95 +52,97 @@ task checkDrafts(group: "Publishing", description: "Checks the content and repor
 }
 
 task checkBadLinks {
-    String.metaClass.isRelativeUrl {
-        return delegate.startsWith('/')
-    }
-    String.metaClass.isLocalhostUrl {
-        return delegate.contains('localhost')
-    }
-    String.metaClass.isOldBlogLink {
-        return delegate.contains('joelforjava.co/')
-    }
-    String sourceDirectory = jbake.srcDirName
-    String contentDirectory = "${sourceDirectory}/content"
-    FileTree tree = fileTree(dir: contentDirectory)
-
-    FileTree filtered = tree.matching {
-        include '**/*.md'
-        include '**/*.html'
-        include '**/*.ad'
-    }
-
-    Map pageUrls = [:]
-    int total = 0
-    int oldBlogTotal = 0
-
-    // Courtesy of https://stackoverflow.com/a/15926317
-    def aHrefPattern = /<a\s+(?:[^>]*?\s+)?href=(["'])(.*?)\1/
-    def imgSrcPattern = /<img\s+(?:[^>]*?\s+)?src=(["'])(.*?)\1/
-    // Courtesy of https://stackoverflow.com/a/23658017
-    def mdHrefPattern = /\[(?<text>[^\]]*)\]\((?<link>[^\)]*)\)/
-    filtered.each { element ->
-        List urls = []
-        element.eachLine('utf-8') { line ->
-            def findHrefGroup = (line =~ aHrefPattern)
-            findHrefGroup?.each { group ->
-                urls << group[-1]
-            }
-            def findMdHrefGroup = (line =~ mdHrefPattern)
-            findMdHrefGroup?.each {
-                urls << it[-1]
-            }
-            def findImgSrcGroup = (line =~ imgSrcPattern)
-            findImgSrcGroup?.each {
-                urls << it[-1]
-            }
+    doLast {
+        String.metaClass.isRelativeUrl {
+            return delegate.startsWith('/')
         }
-        pageUrls[element.absolutePath] = urls
-        total += urls.size()
-    }
-    println '--------'
-    pageUrls.each { page, links ->
-        println "Verifying Links found in: ${page}"
-        def oldBlogLinks = links.findAll { it.isOldBlogLink() }
-        if (oldBlogLinks) {
-            oldBlogTotal += oldBlogLinks.size()
-            oldBlogLinks.each {
-                println("\t OLD BLOG LINK -> ${it}")
-            }
+        String.metaClass.isLocalhostUrl {
+            return delegate.contains('localhost')
         }
-        def externalUrls = links.findAll { ! it.isOldBlogLink() && !it.isLocalhostUrl() && ! it.isRelativeUrl() }
-        externalUrls?.each { externalUrl ->
-            try {
-                def check = 200 //checkUrl(externalUrl)
-                if (200 == check) {
-                    println "\t \u2713 ${externalUrl}"
-                } else {
-                    println "\t ! ${externalUrl} - $check"
+        String.metaClass.isOldBlogLink {
+            return delegate.contains('joelforjava.co/')
+        }
+        String sourceDirectory = jbake.srcDirName
+        String contentDirectory = "${sourceDirectory}/content"
+        FileTree tree = fileTree(dir: contentDirectory)
+
+        FileTree filtered = tree.matching {
+            include '**/*.md'
+            include '**/*.html'
+            include '**/*.ad'
+        }
+
+        Map pageUrls = [:]
+        int total = 0
+        int oldBlogTotal = 0
+
+        // Courtesy of https://stackoverflow.com/a/15926317
+        def aHrefPattern = /<a\s+(?:[^>]*?\s+)?href=(["'])(.*?)\1/
+        def imgSrcPattern = /<img\s+(?:[^>]*?\s+)?src=(["'])(.*?)\1/
+        // Courtesy of https://stackoverflow.com/a/23658017
+        def mdHrefPattern = /\[(?<text>[^\]]*)\]\((?<link>[^\)]*)\)/
+        filtered.each { element ->
+            List urls = []
+            element.eachLine('utf-8') { line ->
+                def findHrefGroup = (line =~ aHrefPattern)
+                findHrefGroup?.each { group ->
+                    urls << group[-1]
                 }
-            } catch (e) {
-                System.err.println "\t \u2716 ${externalUrl} -> $e"
+                def findMdHrefGroup = (line =~ mdHrefPattern)
+                findMdHrefGroup?.each {
+                    urls << it[-1]
+                }
+                def findImgSrcGroup = (line =~ imgSrcPattern)
+                findImgSrcGroup?.each {
+                    urls << it[-1]
+                }
             }
-        }
-        def relativeUrls = links.findAll { it.isRelativeUrl() }
-        relativeUrls?.each { relativeUrl ->
-            // TODO - cycle through all possible file extensions to find original content
-            boolean isValid = false
-            if (relativeUrl.startsWith('/images')) {
-                isValid = new File(sourceDirectory, "/assets$relativeUrl").canRead()
-            } else {
-                isValid = new File(contentDirectory, relativeUrl.replace('html', 'md')).canRead()
-            }
-            if (isValid) {
-                println "\t \u2713 ${relativeUrl}"
-            } else {
-                println "\t ! ${relativeUrl}"
-            }
-            
+            pageUrls[element.absolutePath] = urls
+            total += urls.size()
         }
         println '--------'
+        pageUrls.each { page, links ->
+            println "Verifying Links found in: ${page}"
+            def oldBlogLinks = links.findAll { it.isOldBlogLink() }
+            if (oldBlogLinks) {
+                oldBlogTotal += oldBlogLinks.size()
+                oldBlogLinks.each {
+                    println("\t OLD BLOG LINK -> ${it}")
+                }
+            }
+            def externalUrls = links.findAll { ! it.isOldBlogLink() && !it.isLocalhostUrl() && ! it.isRelativeUrl() }
+            externalUrls?.each { externalUrl ->
+                try {
+                    def check = 200 //checkUrl(externalUrl)
+                    if (200 == check) {
+                        println "\t \u2713 ${externalUrl}"
+                    } else {
+                        println "\t ! ${externalUrl} - $check"
+                    }
+                } catch (e) {
+                    System.err.println "\t \u2716 ${externalUrl} -> $e"
+                }
+            }
+            def relativeUrls = links.findAll { it.isRelativeUrl() }
+            relativeUrls?.each { relativeUrl ->
+                // TODO - cycle through all possible file extensions to find original content
+                boolean isValid = false
+                if (relativeUrl.startsWith('/images')) {
+                    isValid = new File(sourceDirectory, "/assets$relativeUrl").canRead()
+                } else {
+                    isValid = new File(contentDirectory, relativeUrl.replace('html', 'md')).canRead()
+                }
+                if (isValid) {
+                    println "\t \u2713 ${relativeUrl}"
+                } else {
+                    println "\t ! ${relativeUrl}"
+                }
+                
+            }
+            println '--------'
+        }
+        println "\n\nTotal URLS found: $total"
+        println "\t $oldBlogTotal of those were old blog links"
     }
-    println "\n\nTotal URLS found: $total"
-    println "\t $oldBlogTotal of those were old blog links"
 
 }
