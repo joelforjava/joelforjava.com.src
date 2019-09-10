@@ -1,4 +1,3 @@
-jbake-example-project-groovy
+jbake-joelforjava.com.src
 ========================
 
-Example project structure for JBake that uses Groovy templates and Bootstrap.

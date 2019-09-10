@@ -1,7 +1,7 @@
 title=Migrating joelforjava.co(m) from WordPress to JBake
 date=2019-09-15
 type=post
-tags=general
+tags=general,wordpress,static site generators,jbake,freemarker,groovy,thymeleaf,jade,blogging
 status=published
 ~~~~~~
 
