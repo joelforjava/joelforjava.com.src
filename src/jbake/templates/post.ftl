@@ -3,9 +3,7 @@
 	<#include "menu.ftl">
 
 	<#if (content.title)??>
-	<div class="page-header">
-		<h1><#escape x as x?xml>${content.title}</#escape></h1>
-	</div>
+	<h1><#escape x as x?xml>${content.title}</#escape></h1>
 	<#else></#if>
 
 	<p><em>${content.date?string("dd MMMM yyyy")}</em></p>
