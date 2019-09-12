@@ -8,10 +8,16 @@
 
 	<#list posts as post>
   		<#if (post.status == "published")>
-  			<a href="${post.uri}"><h1><#escape x as x?xml>${post.title}</#escape></h1></a>
-  			<p>${post.date?string("dd MMMM yyyy")}</p>
-  			<p>${post.body?keep_before_last('<!--more-->')}</p>
-			<p><a href="${post.uri}">Read more...</a></p>
+		  <div class="ui segments">
+		  	<div class="ui red segment">
+				<a href="${post.uri}"><h1 class="ui header"><#escape x as x?xml>${post.title}</#escape></h1></a>
+				<p>${post.date?string("dd MMMM yyyy")}</p>
+			</div>
+			<div class="ui segment">
+				<p>${post.body?keep_before_last('<!--more-->')}</p>
+				<p><a href="${post.uri}">Read more...</a></p>
+			</div>
+		  </div>
   		</#if>
   	</#list>
 	
