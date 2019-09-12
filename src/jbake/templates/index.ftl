@@ -2,7 +2,9 @@
 	
 	<#include "menu.ftl">
 
-	<h1 class="ui header">Blog</h1>
+	<img class="ui fluid image" src="/images/computer-1873831.png">
+
+	<div id="push"></div>
 
 	<#list posts as post>
   		<#if (post.status == "published")>
