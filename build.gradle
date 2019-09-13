@@ -6,24 +6,23 @@ bakePreview {
     port = '8890'
 }
 
-def checkUrl(String url) {
-    // Found here: https://stackoverflow.com/questions/43584382/how-to-check-if-a-url-exists-or-returns-404-using-groovy-script
-    def check = new URL(url).openConnection().with {
-        requestMethod = 'HEAD' // Would 'GET' be better? Many servers disable HEAD
-        connect()
-        responseCode
+class CheckDraftsTask extends DefaultTask {
+
+    String contentDirectory
+
+    @TaskAction
+    def check() {
+        List drafts = collectDrafts()
+        println "\n\nTotal documents in draft: ${drafts.size()}"
+        (0..30).each { print '-' }
+        println ''
+        drafts.each {
+            println " * $it"
+        }
     }
 
-    check
-}
-
-// TODO - move the tasks into classes
-task checkDrafts(group: "Publishing", description: "Checks the content and reports on those which are still in the draft status") {
-    // TODO - determine if it makes sense to take a year/month to focus only on content for a specific year/month
-    doLast {
-        String sourceDirectory = jbake.srcDirName
-        String contentDirectory = "${sourceDirectory}/content"
-        FileTree tree = fileTree(dir: contentDirectory)
+    private collectDrafts() {
+        FileTree tree = project.fileTree(dir: contentDirectory)
 
         List drafts = []
         tree.each { element ->
@@ -41,30 +40,18 @@ task checkDrafts(group: "Publishing", description: "Checks the content and repor
                 }
             }
         }
-
-        println "\n\nTotal documents in draft: ${drafts.size()}"
-        (0..30).each { print '-' }
-        println ''
-        drafts.each {
-            println " * $it"
-        }
+        drafts
     }
 }
 
-task checkBadLinks {
-    doLast {
-        String.metaClass.isRelativeUrl {
-            return delegate.startsWith('/')
-        }
-        String.metaClass.isLocalhostUrl {
-            return delegate.contains('localhost')
-        }
-        String.metaClass.isOldBlogLink {
-            return delegate.contains('joelforjava.co/')
-        }
-        String sourceDirectory = jbake.srcDirName
-        String contentDirectory = "${sourceDirectory}/content"
-        FileTree tree = fileTree(dir: contentDirectory)
+class CheckBadLinksTask extends DefaultTask {
+
+    String sourceDirectory
+    String contentDirectory
+
+    @TaskAction
+    def check() {
+        FileTree tree = project.fileTree(dir: contentDirectory)
 
         FileTree filtered = tree.matching {
             include '**/*.md'
@@ -145,4 +132,37 @@ task checkBadLinks {
         println "\t $oldBlogTotal of those were old blog links"
     }
 
+    def checkUrl(String url) {
+        // Found here: https://stackoverflow.com/questions/43584382/how-to-check-if-a-url-exists-or-returns-404-using-groovy-script
+        def check = new URL(url).openConnection().with {
+            // requestMethod = 'HEAD'
+            requestMethod = 'GET'
+            connect()
+            responseCode
+        }
+
+        check
+    }
+
+    static {
+        String.metaClass.isRelativeUrl {
+            return delegate.startsWith('/')
+        }
+        String.metaClass.isLocalhostUrl {
+            return delegate.contains('localhost')
+        }
+        String.metaClass.isOldBlogLink {
+            return delegate.contains('joelforjava.co/')
+        }
+    }
+}
+
+task checkDrafts(group: "Publishing", description: "Checks the content and reports on those which are still in the draft status", type: CheckDraftsTask) {
+    String sourceDirectory = jbake.srcDirName
+    contentDirectory = "${sourceDirectory}/content"
+}
+
+task checkBadLinks(type: CheckBadLinksTask) {
+    sourceDirectory = jbake.srcDirName
+    contentDirectory = "${sourceDirectory}/content"
 }
