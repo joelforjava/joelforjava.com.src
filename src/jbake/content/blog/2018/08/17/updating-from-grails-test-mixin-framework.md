@@ -5,7 +5,7 @@ tags=groovy,grails,testing,grails testing support,ripplr
 status=published
 ~~~~~~
 
-In a previous post, I upgraded my Ripplr application, which was using Grails 3.1.9 to version 3.3.6. One of the changes that have come with Grails 3.3 is the new Grails Testing Support framework, which makes heavy use of Groovy traits as opposed to the previous Test Mixin framework, which relied heavily on annotations and AST transformations.
+In a [previous post](/blog/2018/07/16/updating-from-grails-3-1-9-to-grails-3-3-6.html), I upgraded my Ripplr application, which was using Grails 3.1.9 to version 3.3.6. One of the changes that have come with Grails 3.3 is the new Grails Testing Support framework, which makes heavy use of Groovy traits as opposed to the previous Test Mixin framework, which relied heavily on annotations and AST transformations.
 
 Initially, I was not looking forward to updating test frameworks. However, during my first few refactorings, it has proven to be mostly worry free. For the most part, you're replacing Annotations with trait implementations. You may have to make some other small tweaks, but so far they have been quick to implement.
 

@@ -9,8 +9,8 @@
 	<#list posts as post>
   		<#if (post.status == "published")>
 		  <div class="ui segments">
-		  	<div class="ui red segment">
-				<a href="${post.uri}"><h1 class="ui header"><#escape x as x?xml>${post.title}</#escape></h1></a>
+		  	<div class="ui black inverted segment">
+				<a href="${post.uri}"><h1 class="ui grey inverted header"><#escape x as x?xml>${post.title}</#escape></h1></a>
 				<p>${post.date?string("dd MMMM yyyy")}</p>
 			</div>
 			<div class="ui segment">
