@@ -17,7 +17,7 @@ So, here I am now. Everything copied over and I even have some new articles comi
 
 To help me keep tabs on the site, I've added a couple of Gradle tasks, including one to check for articles still in draft and another that validates all of the links to make sure we don't have any that are broken. They're a bit messy, but I'm hoping to improve them over time. I'm also hoping to add a spellchecker task to help keep misspellings to a minimum. You can check out everything [here](https://github.com/joelforjava/joelforjava.com.src).
 
-I used the `jbake` command to initialize my site using `jbake -i`. The site was set up using Freemarker templates, which was fine with me. You can change the templating engine used by running `jbake -i -t <ENGINE>`, where ENGINE is one of `freemarker`, `groovy`, `groovy-mte`, `thymeleaf`, or `jade`. If you've already set up a Gradle build script, you can update the `template` property of the `jbake` as follows:
+I used the `jbake` command to initialize my site using `jbake -i`, which generated the default Freemarker templates. You can change the templating engine used by running `jbake -i -t <ENGINE>`, where ENGINE is one of `freemarker`, `groovy`, `groovy-mte`, `thymeleaf`, or `jade`. If you've already set up a Gradle build script, you can update the `template` property of the `jbake` as follows:
 
 <?prettify?>
 
@@ -25,8 +25,8 @@ I used the `jbake` command to initialize my site using `jbake -i`. The site was 
         template = 'ENGINE'
     }
 
-Here, ENGINE is the same as for the jbake command. When initializing via Gradle, you'd run `gradle bakeInit`. Also, if you initialize a JBake site with Gradle and don't supply a template engine name, it will default to `groovy` instead of `freemarker`. When using Gradle, you can run the `bake` task to re-build your site and the `bakePreview` task to run in preview mode, similar to how `jbake -s` works. However, you'll need to run `gradle bake` each time you wish to update the deployed site. More information on the plugin and itse setup can be found on its GitHub [page](https://github.com/jbake-org/jbake-gradle-plugin).
+Here, ENGINE is the same as for the jbake command. When initializing via Gradle, you'd run `gradle bakeInit`. Also, if you initialize a JBake site with Gradle and don't supply a template engine name, it will default to `groovy` instead of `freemarker`. When using Gradle, you can run the `bake` task to re-build your site and the `bakePreview` task to run in preview mode, similar to how `jbake -s` works. However, you'll need to run `gradle bake` each time you wish to update the deployed site. More information on the plugin and itse setup can be found on its [GitHub page](https://github.com/jbake-org/jbake-gradle-plugin).
 
-Building the site is only half the fun. If you want to host the site on something like [GitHub Pages](https://pages.github.com), you'll need to follow the steps there to set everything up. Once ready, you'd take the output from `build\jbake` and copy it to the root of your GitHub Pages repo. Regardless of what host you choose, you'll likely follow similar steps to upload your baked site for the world to see.
+Building the site is only half the fun. If you want to host the site on something like [GitHub Pages](https://pages.github.com), you'll need to follow the steps there to set everything up. Once ready, you'd take the output from `build/jbake` and copy it to the root of your GitHub Pages repo. Regardless of what host you choose, you'll likely follow similar steps to upload your baked site for the world to see.
 
 Thank you for reading and I hope to somehow keep articles coming even when I'm not able to work with Java as much. Strangely, it seems like the more I'm pushed away from the Java ecosystem, the more I want to work in it. I might post some Python and other language stuff here, too, but that kind of gets away from the whole 'Joel for Java' thing, doesn't it?
