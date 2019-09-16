@@ -1,5 +1,5 @@
 title=Adding Filtering to the Kafka Kinesis Connector
-date=2019-08-09
+date=2019-09-26
 type=post
 tags=kafka,kinesis,aws,kafka connect,java
 status=draft
@@ -9,9 +9,10 @@ In a previous post, we made modifications to the Kafka-Kinesis Connector that al
 
 <!--more-->
 
-This scenario should be fairly easy to get set up in the YAML configuration. We’ll call the new section ‘filters’ and then list the traits of these filters, such as listing the criteria that will cause a message to be filtered into the additional firehose destinations. The message can either start with certain phrases or contain specific keywords anywhere in the message. Matching either of these criteria will cause the message to be sent to the additional destination(s).
+This scenario should be fairly easy to get set up in the YAML configuration. We’ll call the new section `filters` and then list the traits of these filters, such as listing the criteria that will cause a message to be filtered into the additional firehose destinations. The message can either start with certain phrases or contain specific keywords anywhere in the message. Matching either of these criteria will cause the message to be sent to the additional destination(s).
 
 <?prettify?>
+
     - name: BIOMETRICS.TOPIC
     destinations:
         - BIOMETRICS-STREAM
