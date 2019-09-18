@@ -111,6 +111,16 @@ pre code {
 }
 
 .masthead.segment {
-  min-height: 700px;
+  min-height: 500px;
   padding: 1em 0em;
+}
+
+.masthead .image {
+  margin-top: 3em;
+  margin-bottom: 0em;
+}
+
+.masthead h1.ui.header {
+  font-size: 4em;
+  font-weight: normal;
 }

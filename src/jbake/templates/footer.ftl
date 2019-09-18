@@ -27,6 +27,25 @@
     <script src="<#if (content.rootpath)??>${content.rootpath}<#else></#if>js/jquery-1.11.1.min.js"></script>
     <script src="<#if (content.rootpath)??>${content.rootpath}<#else></#if>js/semantic.min.js"></script>
     <script src="<#if (content.rootpath)??>${content.rootpath}<#else></#if>js/prettify.js"></script>
-    
+    <#-- This exists only for the home page. Try to keep this local to that page/template. -->
+    <script>
+      $(document)
+          .ready(function() {
+
+            // fix menu when passed
+            $('.masthead')
+              .visibility({
+                once: false,
+                onBottomPassed: function() {
+                  $('.fixed.menu').transition('fade in');
+                },
+                onBottomPassedReverse: function() {
+                  $('.fixed.menu').transition('fade out');
+                }
+              })
+            ;
+          })
+        ;
+      </script>
   </body>
 </html>
