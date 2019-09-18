@@ -101,3 +101,16 @@ pre code {
   border-radius: 4px;
   text-shadow: none;
 }
+
+.masthead {
+  background-image: url(/images/computer-1873831.png) !important; /* TODO - find a way to get rid of !important */
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
+}
+
+.masthead.segment {
+  min-height: 700px;
+  padding: 1em 0em;
+}

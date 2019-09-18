@@ -1,11 +1,24 @@
 <#include "header.ftl">
 	
-	<#include "menu.ftl">
+	<#include "menu_hidden.ftl">
 
-	<img class="ui fluid image" src="/images/computer-1873831.png">
+	<#--  <div id="push"></div>  -->
 
-	<div id="push"></div>
-
+	<div class="pusher">
+		<div class="ui inverted vertical masthead center aligned segment">
+			<div class="ui container">
+				<div class="ui large secondary inverted pointing menu">
+				    <#include "menu_common.ftl">
+				</div>
+			</div>
+			<div class="ui container">
+				<img class="ui medium centered image" src="/images/joelforjava-icon.jpeg">
+			</div>
+			<div class="ui text container">
+				<h1 class="ui inverted header">Joel for Java</h1>
+			</div>
+		</div>
+	<div class="ui main container">
 	<#list posts as post>
   		<#if (post.status == "published")>
 		  <div class="ui segments">
@@ -20,6 +33,8 @@
 		  </div>
   		</#if>
   	</#list>
+	  </div>
+	</div>
 	
 	<hr />
 	
