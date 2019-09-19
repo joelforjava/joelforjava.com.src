@@ -9,6 +9,8 @@
             <div class="ui inverted horizontal link list">
               <a href="#" class="item"><i class="icon github"></i></a>
               <a href="#" class="item"><i class="icon twitter"></i></a>
+              <a href="#" class="item"><i class="icon tumblr"></i></a>
+              <a href="#" class="item"><i class="icon patreon"></i></a>
             </div>
           </div>
         </div>
