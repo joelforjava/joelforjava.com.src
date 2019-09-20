@@ -7,7 +7,7 @@ status=published
 
 Prior to the work that eventually led me to write this article, and the other Kafka-related ones that will follow, I had very little exposure to Kafka and its ecosystem. I knew, more-or-less, what Kafka was and could do the basics to get a broker started and then run producers and consumers from the command line. That was the extent of my working with Kafka until I inherited the maintaining and deployment of Kafka Connect clusters at work.
 
-These clusters all forward data to AWS Kinesis Firehoses, which then stream the data to Redshift, Splunk, Elasticsearch for Kibana dashbboards, or another Big Data store. The connector used by all of these clusters is a variation of the one <a href="https://github.com/awslabs/kinesis-kafka-connector" title="Kinesis Kafka Connector by AWSLabs on Github">here</a>.
+These clusters all forward data to AWS Kinesis Firehoses, which then stream the data to Redshift, Splunk, Elasticsearch for Kibana dashbboards, or another Big Data store. The connector used by all of these clusters is a variation of this one from <a href="https://github.com/awslabs/kinesis-kafka-connector" title="Kinesis Kafka Connector by AWSLabs on Github">AWSLabs</a>.
 
 I say variation due to the fact that we had to modify it in order for it to suit our requirements. Rather than run one connector per topic/firehose combination, we needed it to take in multiple topics and then deliver to the related Kinesis Data Firehose. For each Kafka topic, there is at least one Kinesis Data Firehose. Due to time constraints, this ended up being a very painful process, and the evolution of that code is what will be explored here, at least as far as it can be.
 
