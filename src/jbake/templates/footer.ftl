@@ -7,10 +7,9 @@
           <div class="seven wide column">
             <h4 class="ui inverted header">Find Me Online</h4>
             <div class="ui inverted horizontal link list">
-              <a href="#" class="item"><i class="icon github"></i></a>
-              <a href="#" class="item"><i class="icon twitter"></i></a>
-              <a href="#" class="item"><i class="icon tumblr"></i></a>
-              <a href="#" class="item"><i class="icon patreon"></i></a>
+              <a href="https://github.com/joelforjava" target="_blank" class="item"><i class="icon github"></i></a>
+              <a href="https://twitter.com/joelforjava" target="_blank" class="item"><i class="icon twitter"></i></a>
+              <a href="https://joelforjava.tumblr.com/" target="_blank" class="item"><i class="icon tumblr"></i></a>
             </div>
           </div>
         </div>
