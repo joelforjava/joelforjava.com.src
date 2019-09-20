@@ -2,7 +2,7 @@ title=Customizing the Kafka Kinesis Connector
 date=2019-09-22
 type=post
 tags=kafka,kinesis,aws,kafka connect,java
-status=draft
+status=published
 ~~~~~~
 
 Prior to the work that eventually led me to write this article, and the other Kafka-related ones that will follow, I had very little exposure to Kafka and its ecosystem. I knew, more-or-less, what Kafka was and could do the basics to get a broker started and then run producers and consumers from the command line. That was the extent of my working with Kafka until I inherited the maintaining and deployment of Kafka Connect clusters at work.
@@ -74,7 +74,7 @@ I also considered using properties similar to the following:
     stream.mapping.one.destinationStreamName.1=DESTINATION_1
     stream.mapping.one.destinationStreamName.2=DESTINATION_2           
 
-However, this seemed a bit verbose, especially in the case of one of the connectors pulling from at least 15 topics, most of them with multiple destinations. So, we looked into other options but ultimately chose a using a separate [YAML](https://yaml.org/) file. This file would also allow for extensibility, which actually ends up relevant soon after the YAML update was completed. While I could’ve also just let SnakeYAML parse the YAML into a Map of Strings to Lists of Strings (which is how the lookup map was set up anyway), I opted for creating separate objects to hold this data, which would also help when it came to extensibility.
+However, this seemed a bit verbose, especially in the case of one of the connectors pulling from at least 15 topics, most of them with multiple destinations. So, we looked into other options but ultimately chose a using a separate [YAML](https://yaml.org/) file. This file would also allow for extensibility, which is something we soon learned we would need after we pushed the YAML update to production. But, I'm getting ahead of myself now. While I could’ve also just let [SnakeYAML](https://bitbucket.org/asomov/snakeyaml) parse the YAML into a Map of Strings to Lists of Strings (which is how the lookup map was set up anyway), I opted for creating separate objects to hold this data, which would also help when it came to extending the functionality further.
 
 <?prettify?>
 
@@ -100,7 +100,7 @@ You might notice the property `streamsAsMap` on the `ClusterMapping` class. This
 
 However, when it came time to deploy the new version of the code that used YAML mappings, it was very problematic to get pushed to one of the clusters, which will be discussed in a separate post. The other servers updated smoothly, which is what made this one server issue puzzling. Now, if you need to add a mapping, all you need to do is update the YAML and restart the connector. Once restarted, push the new topic(s) to the REST API and the connector should start processing the new mappings. This ended up being magnitudes better than the old setup.
 
-This set up has a fairly major issue, though. The mapping file will have to be present on every node in the Connect cluster. So, if you have a 20-node cluster, then all 20 nodes will need that file in the SAME location. This shouldn’t be an issue if your nodes are just copies of a templated virtual machine, but if you use different box set ups for some of the nodes, they’ll have to be updated. Thankfully, we have all of our nodes set up in the exact same way per cluster. At some point in the future, I hope to explore a way we can bring it all back to a single configuration file and something that can be pushed directly to the REST API, but going with YAML was the quickest way to go at this point and we have the automation in place to update the files on the server.
+This set up has a fairly major issue, though. The mapping file will have to be present on *every* node in the Connect cluster. So, if you have a 20-node cluster, then all 20 nodes will need that file in the **SAME** location. This shouldn’t be an issue if your nodes are just copies of a templated virtual machine, but if you use different box set ups for some of the nodes, they’ll have to be streamlined. Thankfully, we have all of our nodes set up in the exact same way per cluster. At some point in the future, I hope to explore a way we can bring it all back to a single configuration file and something that can be pushed directly to the REST API, but going with YAML was the quickest way to go at this point and we have the automation in place to update the files on the server.
 
 *Side Note:* The domain objects were originally written in Groovy, but I’ve opted to go with Kotlin here. I like trying to mix in alternate JVM classes if it’ll help the code look cleaner. And, Plain Old Groovy (or Kotlin) Objects are definitely easier on the eyes than the equivalent Java. This change to Kotlin for this version of the connector also gave me a chance to work with a language I wanted to work with more.
 

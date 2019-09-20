@@ -20,6 +20,11 @@
 	${post.body}
 	</#escape>
 	</description>
+  <#if (post.tags)??>
+    <#list post.tags as tag>
+      <category><#escape x as x?xml>${tag}</#escape></category>
+    </#list>
+  </#if>
     </item>
     </#list>
 
