@@ -17,7 +17,7 @@
       <guid isPermaLink="false">${post.uri}</guid>
       	<description>
 	<#escape x as x?xml>	
-	${post.body}
+	${post.body?keep_before_last('<!--more-->')}
 	</#escape>
 	</description>
   <#if (post.tags)??>
