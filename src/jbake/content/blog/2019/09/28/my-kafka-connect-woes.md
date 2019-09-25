@@ -5,7 +5,7 @@ tags=kafka,kinesis,kafka connect,java
 status=draft
 ~~~~~~
 
-We have several 3-node Kafka connect clusters that each process different topics. If you’ve read my [first article](/blog/2019/08/06/customizing-kafka-kinesis-connector.html) regarding my project's customized version of the AWS Labs Kafka-Kinesis Connector, you’ve already read about the corner we backed ourselves into with our first deployments of the modified code. We’ve been working, when possible, to fix those mistakes and to make updates to the clusters and their configurations easy. Well, at least easier than the abomination with which we started.
+We have several 3-node Kafka connect clusters that each process different topics. If you’ve read my [first article](/blog/2019/09/22/customizing-kafka-kinesis-connector.html) regarding my project's customized version of the AWS Labs Kafka-Kinesis Connector, you’ve already read about the corner we backed ourselves into with our first deployments of the modified code. We’ve been working, when possible, to fix those mistakes and to make updates to the clusters and their configurations easy. Well, at least easier than the abomination with which we started.
 
 During one of the updates to the code, updates that added additional properties and an additional configuration file, we ran into an issue with one of the clusters. We were attempting a rolling update of the Kafka-Kinesis Connector plugin and while it went smoothly for the first two clusters, it was a huge pain to get this particular cluster to update appropriately.
 
