@@ -12,21 +12,26 @@
 				</div>
 			</div>
 			<div class="ui container">
-				<img class="ui medium centered image" src="/images/joelforjava-icon.jpeg">
-			</div>
-			<div class="ui text container">
-				<h1 class="ui inverted header">Joel for Java</h1>
+				<div class="item">
+					<div class="ui medium image">
+						<img src="/images/joelforjava-icon.jpeg">
+					</div>
+				</div>
 			</div>
 		</div>
 	<div class="ui main container">
 	<#list posts as post>
   		<#if (post.status == "published")>
 		  <div class="ui segments">
-		  	<div class="ui black inverted segment">
+		  	<div class="ui black inverted padded segment">
 				<a href="${post.uri}"><h1 class="ui grey inverted header"><#escape x as x?xml>${post.title}</#escape></h1></a>
 				<p>${post.date?string("dd MMMM yyyy")}</p>
+				<#-- This date is not currently populated anywhere. Leaving this here for now for reference. -->
+				<#if (post.last_updated)?has_content>
+					<p>Last Updated On: ${post.last_updated?date('yyyy-MM-dd')?string('dd MMMM yyyy')}</p>
+				</#if>
 			</div>
-			<div class="ui segment">
+			<div class="ui padded segment">
 				<p>${post.body?keep_before_last('<!--more-->')}</p>
 				<p><a href="${post.uri}">Read more...</a></p>
 			</div>
