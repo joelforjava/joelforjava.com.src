@@ -26,10 +26,6 @@
 		  	<div class="ui black inverted padded segment">
 				<a href="${post.uri}"><h1 class="ui grey inverted header"><#escape x as x?xml>${post.title}</#escape></h1></a>
 				<p>${post.date?string("dd MMMM yyyy")}</p>
-				<#-- This date is not currently populated anywhere. Leaving this here for now for reference. -->
-				<#if (post.last_updated)?has_content>
-					<p>Last Updated On: ${post.last_updated?date('yyyy-MM-dd')?string('dd MMMM yyyy')}</p>
-				</#if>
 			</div>
 			<div class="ui padded segment">
 				<p>${post.body?keep_before_last('<!--more-->')}</p>
