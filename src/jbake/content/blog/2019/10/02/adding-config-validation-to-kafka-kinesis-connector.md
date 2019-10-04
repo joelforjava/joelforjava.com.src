@@ -1,8 +1,8 @@
 title=Adding Configuration Validation to the Kafka Kinesis Connector
-date=2019-08-26
+date=2019-10-02
 type=post
 tags=kafka,kinesis,kafka connect,java
-status=draft
+status=published
 ~~~~~~
 
 As it currently stands, you can easily feed invalid property values to the Kafka Kinesis Firehose Connector, such as a batch size of 1000, when the maximum batch size allowed by Firehose is only 500. Thankfully, Kafka Connect provides a mechanism to help with validating properties. The REST API provides a validate endpoint at `/connector-plugins/<CONNECTOR_CLASS_NAME>/config/validate`.
@@ -101,7 +101,7 @@ This is where I take a bit of inspiration from the [Confluent Elasticsearch Conn
         // Add others
     }
 
-We can then change the `FirehoseSinkConnector.config` method to return `FirehoseSinkConnectorConfig.CONFIG` and this updated config will be displayed when you try to validate your configuration against the REST API.
+We can then change the `FirehoseSinkConnector.config` method to return `FirehoseSinkConnectorConfig.CONFIG`, which contains the custom-built `ConfigDef` definition, and this updated config will be displayed when you try to validate your configuration against the REST API.
 
 <?prettify?>
 
@@ -204,7 +204,7 @@ We can add this validator implementation to our configuration definition and now
         FirehoseSinkConnectorConfig config = new FirehoseSinkConnectorConfig(props);
     }
 
-Also, if we repeat the curl request from above, we will see an error flagged for the `batchSize` value:
+After deploying this latest update, if we repeat the curl request from above, we will see an error flagged for the `batchSize` value:
 
 <?prettify?>
 
