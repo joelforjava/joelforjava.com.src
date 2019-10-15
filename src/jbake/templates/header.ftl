@@ -12,7 +12,7 @@
     </script>
 
     <meta charset="utf-8"/>
-    <title><#if (content.title)??><#escape x as x?xml>${content.title}</#escape><#else>JBake</#if></title>
+    <title><#if (content.title)??><#escape x as x?xml>${content.title}</#escape><#else>The Official Joel for Java Blog</#if></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
