@@ -1,11 +1,9 @@
 <#include "header.ftl">
-
-	<#include "menu.ftl">
 	
-	<div class="page-header">
-		<h1>Tag: ${tag}</h1>
-	</div>
-	
+	<article class="box post post-excerpt">
+		<header>
+			<h2>Tag: ${tag}</h2>
+		</header>
 	<!--<ul>-->
 		<#list tag_posts as post>
 		<#if (last_month)??>
@@ -22,6 +20,10 @@
 		<li>${post.date?string("dd")} - <a href="${content.rootpath}${post.uri}">${post.title}</a></li>
 		<#assign last_month = post.date?string("MMMM yyyy")>
 		</#list>
-	</ul>
+		</ul>
+	</article>
+			</div> <!-- inner -->
+		</div> <!-- content -->
+	<#include "sidebar.ftl">
 	
 <#include "footer.ftl">
