@@ -2,7 +2,9 @@
 			<div id="sidebar">
 
 				<!-- Logo -->
-					<h1 id="logo"><a href="#">J4J</a></h1>
+					<h1 id="logo">
+						<a href="<#if (content.rootpath)??>${content.rootpath}<#else></#if>index.html">Joel for Java</a>
+					</h1>
 
                 <#include "menu.ftl"/>
 
