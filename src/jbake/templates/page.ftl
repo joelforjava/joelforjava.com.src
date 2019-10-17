@@ -34,15 +34,19 @@
 						<!--
 							Note: You can change the number of list items in "stats" to whatever you want. TODO - put in template?
 						-->
+						<#if config.post_use_stats!false >
 						<ul class="stats">
 							<li><a href="#" class="icon fa-comment">16</a></li>
 							<li><a href="#" class="icon fa-heart">32</a></li>
 							<li><a href="#" class="icon brands fa-twitter">64</a></li>
 							<li><a href="#" class="icon brands fa-facebook-f">128</a></li>
 						</ul>
+						</#if>
 					</div>
-					<#-- TODO - check article for image header and make conditional -->
-					<a href="#" class="image featured"><img src="images/pic01.jpg" alt="" /></a>
+					<#if (content.header_image??) >
+						<#-- TODO - add header images to a few articles -->
+						<a href="#" class="image featured"><img src="${content.header_image}" alt="" /></a>
+					</#if>
 					<p>${content.body}</p>
 				</article>
 

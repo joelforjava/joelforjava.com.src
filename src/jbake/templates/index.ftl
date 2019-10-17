@@ -39,10 +39,10 @@
 						</ul>
 						</#if>
 					</div>
-					<#-- TODO - check article for image header and make conditional -->
+
 					<#if (post.header_image??) >
 						<#-- TODO - add header images to a few articles -->
-						<a href="#" class="image featured"><img src="images/pic01.jpg" alt="" /></a>
+						<a href="#" class="image featured"><img src="${post.header_image}" alt="" /></a>
 					</#if>
 					<p>${post.body?keep_before_last('<!--more-->')}</p>
 					<p><a href="${post.uri}">Read more...</a></p>

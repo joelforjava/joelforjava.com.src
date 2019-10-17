@@ -41,8 +41,10 @@
 						</ul>
 						</#if>
 					</div>
-					<#-- TODO - check article for image header and make conditional -->
-					<a href="#" class="image featured"><img src="images/pic01.jpg" alt="" /></a>
+					<#if (content.header_image??) >
+						<#-- TODO - add header images to a few articles -->
+						<a href="#" class="image featured"><img src="${content.header_image}" alt="" /></a>
+					</#if>
 					<p>${content.body}</p>
 				</article>
 
