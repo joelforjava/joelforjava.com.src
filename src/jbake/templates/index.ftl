@@ -45,7 +45,7 @@
 						<a href="#" class="image featured"><img src="${post.header_image}" alt="" /></a>
 					</#if>
 					<p>${post.body?keep_before_last('<!--more-->')}</p>
-					<p><a href="${post.uri}">Read more...</a></p>
+					<p><#if (post.body?contains('<!--more-->')) ><a href="${post.uri}">Read more...</a></#if></p>
 				</article>
   	</#list>
 	
