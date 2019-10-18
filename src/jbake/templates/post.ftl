@@ -11,7 +11,9 @@
 						-->
 
 						<h2><#escape x as x?xml>${content.title}</#escape></h2>
-						<p>${content.date?string("dd MMMM yyyy")}</p> <#-- TODO - this date moves to the 'tab' (the date span below) -->
+						<#if (content.last_updated??)>
+							<p>Updated on: ${content.last_updated?date("yyyy-MM-dd")?string("dd MMMM yyyy")}</p>
+						</#if>
 					</header>
 					<#else></#if>
 
