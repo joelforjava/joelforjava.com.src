@@ -27,11 +27,11 @@ What I would like to end up with is something like this:
     	                            val destinations: List<String>, 
     	                            val fiters: List<StreamFilterMapping>)
 
-You may be thinking there isn't much of a difference between the two, and on the surface you'd be right. However, vals can only be assigned once and are therefore read-only.
+You may be thinking there isn't much of a difference between the two, and on the surface you'd be right. However, `val`s can only be assigned once and are therefore read-only. I tend to err on the side of read-only and immutability wherever possible. 
 
 Is this attainable using SnakeYAML to parse my YAML files? Let's find out! While working on this, I came across an [article](https://www.mkammerer.de/blog/snakeyaml-and-kotlin) that tried to attain this and failed. That article ultimately suggested going with Jackson, and maybe that's the way to go. However, I want to see if it is at all possible to use the desired data classes with YAML. Will it even be YAML we want to use?
 
-For these tests, I'll be using a project that contains a different set of Kotlin and YAML files, which reference Bands, their albums, and their songs.
+For these tests, I'll be using a project that contains a different set of Kotlin and YAML files, which reference Bands, their albums, and their songs. This project is available on GitHub.
 
 Here is an example of a YAML file we will be attempting to parse:
 
@@ -67,7 +67,7 @@ And here's our beginning Band data classes:
 
 These classes all use vars and have null defaults. This causes a default constructor to be created and therefore SnakeYAML will be able to parse the YAML into these data classes.
 
-The first step I took in refining these classes was to replace vars with vals in one of the data classes. Doing this causes the tests all fail due to the now lack of setters for that class. There is a way around this, though, if you change the bean access to BeanAccess.FIELD instead of BeanAccess.DEFAULT, which uses JavaBean properties and public fields. If you run the tests after making this change in the ConfigParser class, then all the tests will pass again.
+The first step I took in refining these classes was to replace `var`s with `val`s in one of the data classes. Doing this causes the tests all fail due to the now lack of setters for that class. There is a way around this, though, if you change the bean access to `BeanAccess.FIELD` instead of `BeanAccess.DEFAULT`, which uses JavaBean properties and public fields. If you run the tests `TODO list tests!` after making this change in the `parseYamlAs` function, then all the tests will pass again.
 
 As for the non-null fields, as long as you use something like an empty string for the initializer, you can switch from `String?` to `String`.
 
@@ -99,10 +99,26 @@ And this is the function used to parse the YAML:
 	    return mapping
 	}
 
+My next step was to eliminate the default values. This took a bit of work to find a YAML format that would parse correctly into these classes. And while I did manage to make it work with the above parse function, you'll soon see that the `clazz` parameter is redundant when presented with the final YAML, so I wrote a new, very similar method to handle the parsing.
+
+<?prettify?>
+
+	data class Band(val name: String, val albums: List<Album>)
+
+	data class Album4(val name: String,
+	                  val releaseYear: Int,
+	                  val label: String,
+	                  val tracks: List<Song>)
+
+	data class Song(val name: String)
+
+Prior to this, I did not realize that you can add type information to your YAML definitions. This is the approach I found myself taking with these last data classes. There seemed to be no other way to get it to work.
+
+Before I set out to write this article and while I was working with the Kafka-Kinesis Connector, I found another article that also showed some frustrations with working with Kotlin and SnakeYAML. `(TODO - LINK!!)`. Ultimately, the author decided to go with Jackson for YAML parsing, so I knew using the final data classes would not work with the existing YAMIL as-is. Still, I thought it would be interesting to look more into what it would take to get SnakeYAML to parse *something* using those classes.  The results, in my opinion, are not very pretty. I'm sure there are valid uses for adding type details to a YAML definition, but for the vast majority of my uses I want to avoid adding this type of information.
+
 From this point, TBD......
 
 #### How do I incorporate the below into the article?
 
-I found an article that also showed some frustrations with working with Kotlin and SnakeYAML. (TODO - LINK!!). Ultimately, he decided to go with Jackson for YAML parsing but I wanted to look more into using SnakeYAML with Kotlin since it’s a smaller library and I really just want to see what’s possible with it.  I thought maybe this could prove as a good way for me to get more familiar with Kotlin and also see if I can get the desired results with SnakeYAML.
 
 So, I’ll be working with a similar structure as to those files used with my version of the Kafka-Kinesis Connector and I’ll begin with data classes that resemble those initial data classes and progressively work toward data classes that are more restrictive (e.g. as many vals as possible and non-null types). Hopefully the final result will be data classes that don’t require default values for everything and just be simplistic-looking data classes.
