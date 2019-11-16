@@ -75,14 +75,14 @@ So, now we have the following data classes from `try_3.kt`:
 
 <?prettify?>
 
-	data class Band(val name: String = "", val albums: List<Album> = emptyList())
+	data class Band3(val name: String = "", val albums: List<Album3> = emptyList())
 
-	data class Album(val name: String = "",
+	data class Album3(val name: String = "",
 	                  val releaseYear: Int = 0,
 	                  val label: String = "",
-	                  val tracks: List<Song> = emptyList())
+	                  val tracks: List<Song3> = emptyList())
 
-	data class Song(val name: String = "")
+	data class Song3(val name: String = "")
 
 And this is the function used to parse the YAML:
 
@@ -103,14 +103,14 @@ My next step was to eliminate the default values. This took a bit of work to fin
 
 <?prettify?>
 
-	data class Band(val name: String, val albums: List<Album>)
+	data class Band4(val name: String, val albums: List<Album4>)
 
 	data class Album4(val name: String,
 	                  val releaseYear: Int,
 	                  val label: String,
-	                  val tracks: List<Song>)
+	                  val tracks: List<Song4>)
 
-	data class Song(val name: String)
+	data class Song4(val name: String)
 
 Prior to this, I did not realize that you can add type information to your YAML definitions. This is the approach I found myself taking with these last data classes. There seemed to be no other way to get SnakeYAML to parse data into these classes.
 
