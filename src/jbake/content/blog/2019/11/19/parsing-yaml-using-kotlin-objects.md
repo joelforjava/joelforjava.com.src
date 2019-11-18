@@ -5,8 +5,6 @@ tags=kotlin,yaml
 status=draft
 ~~~~~~
 
-A.K.A. Getting Kotlin and SnakeYAML to Play Nicely Together
-
 When I set out to customize the Kafka-Kinesis Connector to read in a [YAML configuration](/blog/2019/09/22/customizing-kafka-kinesis-connector.html) for use by the connector, I decided to go with Kotlin data classes to hold that configuration. The initial versions of these classes aren’t as good as I think they could be, though. For example, all of these data classes make use of vars rather than vals. I’d much rather stick to vals whenever possible due to the fact that they're read-only and cannot be changed once set. 
 
 The initial data classes also all use optional (nullable) types for every field. I’d prefer using non-optionals when I can and when I know that certain values should always be non-null, such as the topic or destination stream names. Even for the 'optional' items, like `filters`, I'd still prefer to return an empty list rather than `null`. These data classes were all created this way because it was the quickest way I could get it all to work together and, at the time, all I wanted was something that worked. So this is me coming back to see what I can do to make these classes better, if anything.
@@ -114,11 +112,27 @@ My next step was to eliminate the default values. This took a bit of work to fin
 
 Prior to this, I did not realize that you can add type information to your YAML definitions. This is the approach I found myself taking with these last data classes. There seemed to be no other way to get SnakeYAML to parse data into these classes.
 
-Before I set out to write this article and while I was working with the Kafka-Kinesis Connector, I found another article that also showed some frustrations with working with Kotlin and SnakeYAML. `(TODO - LINK!!)`. Ultimately, the author decided to go with Jackson for YAML parsing, so I knew using the final data classes would not work with the existing YAMIL as-is. Still, I thought it would be interesting to look more into what it would take to get SnakeYAML to parse *something* using those classes.  The results, in my opinion, are not very pretty. I'm sure there are valid uses for adding type details to a YAML definition, but for the vast majority of my uses I want to avoid adding this type of information.
+This is the YAML that ultimately worked with the desired classes:
 
-From this point, TBD......
+<?prettify?>
 
-#### How do I incorporate the below into the article?
+	!!com.joelforjava.kotlin.Band4
+	- Led Zeppelin
+	- !!java.util.List
+	  - !!com.joelforjava.kotlin.Album4
+	    - Houses of the Holy
+	    - 1973
+	    - Atlantic
+	    - !!java.util.List
+	      - !!com.joelforjava.kotlin.Song4 No Quarter
+	      - !!com.joelforjava.kotlin.Song4 Over the Hills and Far Away
+	  - !!com.joelforjava.kotlin.Album4
+	    - Physical Grafitti
+	    - 1975
+	    - Atlantic
+	    - !!java.util.List
+	      - !!com.joelforjava.kotlin.Song4 Kashmir
+	      - !!com.joelforjava.kotlin.Song4 Houses of the Holy
 
+So, was it possible to get SnakeYAML to load a YAML definition into my desired data class setup? Yes. Would I want to use this YAML? That's a no from me. Ultimately, it depends on your use case and preferred programming style. If you are ok with default values, you could stick with SnakeYAML, which was demonstrated earlier. Or, if you simply must have no defaults, your best bet is using Jackson.
 
-So, I’ll be working with a similar structure as to those files used with my version of the Kafka-Kinesis Connector and I’ll begin with data classes that resemble those initial data classes and progressively work toward data classes that are more restrictive (e.g. as many vals as possible and non-null types). Hopefully the final result will be data classes that don’t require default values for everything and just be simplistic-looking data classes.
