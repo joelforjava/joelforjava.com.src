@@ -5,7 +5,7 @@ tags=kotlin,yaml
 status=draft
 ~~~~~~
 
-When I set out to customize the Kafka-Kinesis Connector to read in a [YAML configuration](/blog/2019/09/22/customizing-kafka-kinesis-connector.html) for use by the connector, I decided to go with Kotlin data classes to hold that configuration. The initial versions of these classes aren’t as good as I think they could be, though. For example, all of these data classes make use of vars rather than vals. I’d much rather stick to vals whenever possible due to the fact that they're read-only and cannot be changed once set. 
+When I set out to customize the Kafka-Kinesis Connector to read in a [YAML configuration](/blog/2019/09/22/customizing-kafka-kinesis-connector.html) for use by the connector, I decided to go with Kotlin data classes to hold that configuration. The initial versions of these classes aren’t as good as I think they could be, though. For example, all of these data classes make use of `var`s rather than `val`s. I’d much rather stick to `val`s whenever possible due to the fact that they're read-only and cannot be changed once set. 
 
 The initial data classes also all use optional (nullable) types for every field. I’d prefer using non-optionals when I can and when I know that certain values should always be non-null, such as the topic or destination stream names. Even for the 'optional' items, like `filters`, I'd still prefer to return an empty list rather than `null`. These data classes were all created this way because it was the quickest way I could get it all to work together and, at the time, all I wanted was something that worked. So this is me coming back to see what I can do to make these classes better, if anything.
 
@@ -25,11 +25,11 @@ What I would like to end up with is something like this:
     	                            val destinations: List<String>, 
     	                            val fiters: List<StreamFilterMapping>)
 
-You may be thinking there isn't much of a difference between the two, and on the surface you'd be right. However, `val`s can only be assigned once and are therefore read-only. I tend to err on the side of read-only and immutability wherever possible. 
+You may be thinking there isn't much of a difference between the two, however, `val`s can only be assigned once and are therefore read-only. I tend to err on the side of read-only and as-close-as to immutable wherever possible. 
 
-Is this attainable using SnakeYAML to parse my YAML files? Let's find out! While working on this, I came across an [article](https://www.mkammerer.de/blog/snakeyaml-and-kotlin) that tried to attain this and failed. That article ultimately suggested going with Jackson, and maybe that's the way to go. However, I want to see if it is at all possible to use the desired data classes with YAML. Will it even be YAML we want to use?
+Is this attainable using [SnakeYAML](https://bitbucket.org/asomov/snakeyaml/wiki/Home) to parse my YAML files? Let's find out! While working on this, I came across an [article](https://www.mkammerer.de/blog/snakeyaml-and-kotlin) that tried to attain this and failed. That article ultimately suggested going with Jackson, and maybe that's the way to go. However, I want to see if it is at all possible to use the desired data classes with YAML. Will it even be YAML we want to use?
 
-For these tests, I'll be using a project that contains a different set of Kotlin and YAML files, which reference Bands, their albums, and their songs. This project is available on GitHub. It has 4 kotlin files, try_1.kt up to try_4.kt that contain the different data class implementations.
+For these tests, I'll be using a project that contains a different set of Kotlin and YAML files, which reference Bands, their albums, and their songs. This project is available on [GitHub](https://github.com/joelforjava/polyglot-jvm-yaml-parsing-examples). It has 4 kotlin files inside the `kotlin-objects` sub-project, `try_1.kt` up to `try_4.kt` that contain the different data class implementations.
 
 Here is an example of a YAML file we will be attempting to parse:
 
@@ -65,7 +65,7 @@ And here's our beginning Band data classes as they exist in `try_1.kt`:
 
 These classes all use vars and have null defaults. This causes a default constructor to be created and therefore SnakeYAML will be able to parse the YAML into these data classes.
 
-The first step I took in refining these classes was to replace `var`s with `val`s in one of the data classes. Doing this causes the tests all fail due to the now lack of setters for that class. There is a way around this, though, if you change the bean access to `BeanAccess.FIELD` instead of `BeanAccess.DEFAULT`, which uses JavaBean properties and public fields. If you run the tests `TODO list tests!` after making this change in the `parseYamlAs` function, then all the tests will pass again. These class definitions are present in `try_2.kt`.
+The first step I took in refining these classes was to replace `var`s with `val`s in one of the data classes. Doing this causes the tests all fail due to the now lack of setters for that class. There is a way around this, though, if you change the bean access to `BeanAccess.FIELD` instead of `BeanAccess.DEFAULT`, which uses JavaBean properties and public fields. If you run the test `parseYamlAsUsingFieldAccess function can load YAML into Band classes that use vals` after making this change in the `parseYamlAs` function (I created a new function, `parseYamlAsUsingFieldAccess`), then all the tests should pass again. These class definitions are present in `try_2.kt`.
 
 As for the non-null fields, as long as you use something like an empty string for the initializer, you can switch from `String?` to `String`.
 
@@ -134,5 +134,7 @@ This is the YAML that ultimately worked with the desired classes:
 	      - !!com.joelforjava.kotlin.Song4 Kashmir
 	      - !!com.joelforjava.kotlin.Song4 Houses of the Holy
 
-So, was it possible to get SnakeYAML to load a YAML definition into my desired data class setup? Yes. Would I want to use this YAML? That's a no from me. Ultimately, it depends on your use case and preferred programming style. If you are ok with default values, you could stick with SnakeYAML, which was demonstrated earlier. Or, if you simply must have no defaults, your best bet is using Jackson.
+So, was it possible to get SnakeYAML to load a YAML definition into my desired data class setup? Yes. Would I want to use this YAML? That's a no from me. Ultimately, it depends on your use case and preferred programming style. If you are ok with default values, you could stick with SnakeYAML, which was demonstrated earlier. Or, if you simply must have no defaults, your best bet is using Jackson, which is discussed further in another [blog](https://www.mkammerer.de/blog/snakeyaml-and-kotlin).
+
+I may do more with SnakeYAML and other languages to see how they stack up. Stay tuned!
 
