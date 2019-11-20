@@ -2,12 +2,14 @@ title=Parsing YAML Using Kotlin Objects
 date=2019-11-19
 type=post
 tags=kotlin,yaml
-status=draft
+status=published
 ~~~~~~
 
 When I set out to customize the Kafka-Kinesis Connector to read in a [YAML configuration](/blog/2019/09/22/customizing-kafka-kinesis-connector.html) for use by the connector, I decided to go with Kotlin data classes to hold that configuration. The initial versions of these classes aren’t as good as I think they could be, though. For example, all of these data classes make use of `var`s rather than `val`s. I’d much rather stick to `val`s whenever possible due to the fact that they're read-only and cannot be changed once set. 
 
 The initial data classes also all use optional (nullable) types for every field. I’d prefer using non-optionals when I can and when I know that certain values should always be non-null, such as the topic or destination stream names. Even for the 'optional' items, like `filters`, I'd still prefer to return an empty list rather than `null`. These data classes were all created this way because it was the quickest way I could get it all to work together and, at the time, all I wanted was something that worked. So this is me coming back to see what I can do to make these classes better, if anything.
+
+<!--more-->
 
 This is the first version of the `DestinationStreamMapping` class:
 
@@ -25,7 +27,7 @@ What I would like to end up with is something like this:
     	                            val destinations: List<String>, 
     	                            val fiters: List<StreamFilterMapping>)
 
-You may be thinking there isn't much of a difference between the two, however, `val`s can only be assigned once and are therefore read-only. I tend to err on the side of read-only and as-close-as to immutable wherever possible. 
+You may be thinking there isn't much of a difference between the two, however, `val`s can only be assigned once and are therefore read-only. I tend to err on the side of read-only and as-close-to immutable wherever possible. 
 
 Is this attainable using [SnakeYAML](https://bitbucket.org/asomov/snakeyaml/wiki/Home) to parse my YAML files? Let's find out! While working on this, I came across an [article](https://www.mkammerer.de/blog/snakeyaml-and-kotlin) that tried to attain this and failed. That article ultimately suggested going with Jackson, and maybe that's the way to go. However, I want to see if it is at all possible to use the desired data classes with YAML. Will it even be YAML we want to use?
 
@@ -133,6 +135,21 @@ This is the YAML that ultimately worked with the desired classes:
 	    - !!java.util.List
 	      - !!com.joelforjava.kotlin.Song4 Kashmir
 	      - !!com.joelforjava.kotlin.Song4 Houses of the Holy
+
+Here is the function used to load this Yaml:
+
+<?prettify?>
+
+	// This will only work when the YAML has type information
+	fun <T> parseYaml(fileUrl: String): T? {
+	    var mapping: T? = null
+	    val inputStream = loadResourceAsStream(fileUrl) ?: return mapping
+	    BufferedInputStream(inputStream).use { bis ->
+	        val yaml = Yaml()
+	        mapping = yaml.load(bis) as T
+	    }
+	    return mapping
+	}
 
 So, was it possible to get SnakeYAML to load a YAML definition into my desired data class setup? Yes. Would I want to use this YAML? That's a no from me. Ultimately, it depends on your use case and preferred programming style. If you are ok with default values, you could stick with SnakeYAML, which was demonstrated earlier. Or, if you simply must have no defaults, your best bet is using Jackson, which is discussed further in another [blog](https://www.mkammerer.de/blog/snakeyaml-and-kotlin).
 
