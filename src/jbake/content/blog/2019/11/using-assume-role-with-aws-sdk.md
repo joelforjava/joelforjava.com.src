@@ -11,7 +11,7 @@ When I first found myself needing to this, I found several tutorials in the AWS 
 
 <?prettify?>
 
-    private AWSCredentialsProvider loadCredentials(boolean isLocal) {
+    private static AWSCredentialsProvider loadCredentials(boolean isLocal) {
         final AWSCredentialsProvider credentialsProvider;
         if (isLocal) {
             AWSSecurityTokenService stsClient = AWSSecurityTokenServiceAsyncClientBuilder.standard()
@@ -38,4 +38,8 @@ When I first found myself needing to this, I found several tutorials in the AWS 
         return credentialsProvider;
     }
 
-This is the code I tend to use when having to switch between local development and then deploying to Lambda or to an EC2 Container. The `isLocal` parameter is set to false via an environment variable when deployed. You could remove the `isLocal` check if you're doing something like assuming the role of another account.
+This is the code I tend to use when having to switch between local development and then deploying to Lambda or to an EC2 Container. The `isLocal` parameter is set to false via an environment variable when deployed. You could remove the `isLocal` check if you're doing something like assuming the role of another account. I created a [gist](https://gist.github.com/joelforjava/cc460b733f684a1e4d1b69d21fd0cd25) that shows it used in the context of a more complete application.
+
+Even though the Kafka-Kinesis Connector is still based on version 1.x of the AWS SDK, I've been trying to incorporate more of the version 2.x SDK into anything new I write. That means the code above won't be of much help. So, I created an updated version.
+
+`TBD!!`
