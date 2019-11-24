@@ -42,4 +42,30 @@ This is the code I tend to use when having to switch between local development a
 
 Even though the Kafka-Kinesis Connector is still based on version 1.x of the AWS SDK, I've been trying to incorporate more of the version 2.x SDK into anything new I write. That means the code above won't be of much help. So, I created an updated version.
 
-`TBD!!`
+<?prettify?>
+
+    private static AwsCredentialsProvider loadCredentialsV2() throws ExecutionException, InterruptedException {
+        ProfileCredentialsProvider devProfile = ProfileCredentialsProvider.builder()
+                .profileName("dev")
+                .build();
+
+        StsAsyncClient stsAsyncClient = StsAsyncClient.builder()
+                .credentialsProvider(devProfile)
+                .region(Region.US_EAST_1)
+                .build();
+
+        AssumeRoleRequest assumeRoleRequest = AssumeRoleRequest.builder()
+                .durationSeconds(3600)
+                .roleArn("arn:aws:iam::1234567890987:role/Super-Important-Role")
+                .roleSessionName("CloudWatch2_Session")
+                .build();
+
+        Future<AssumeRoleResponse> responseFuture = stsAsyncClient.assumeRole(assumeRoleRequest);
+        AssumeRoleResponse response = responseFuture.get();
+        Credentials creds = response.credentials();
+
+        AwsSessionCredentials sessionCredentials = AwsSessionCredentials.create(creds.accessKeyId(), creds.secretAccessKey(), creds.sessionToken());
+        return AwsCredentialsProviderChain.builder()
+                .credentialsProviders(StaticCredentialsProvider.create(sessionCredentials))
+                .build();
+    }
