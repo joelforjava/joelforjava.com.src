@@ -18,7 +18,7 @@ I went ahead and cloned the repo from the dev.to article:
 
 I more or less ran the Docker Compose file as discussed in that article, by running `docker-compose up`. I then placed a file in the connect-input-file directory (in my case a codenarc Groovy config file). Running a consumer showed the file being output back out.
 
-Next, I wanted to run Kafka Connect in distributed mode, pulling that same data back out using the `FileSourceSinkConnector`. Rather than build on the existing docker setup, I decided to create a new docker compose file.
+Next, I wanted to run Kafka Connect in distributed mode, pulling that same data back out using the `FileSourceSinkConnector`. Rather than build on the existing docker setup, I decided to create a new docker compose file inside of a new directory in an attempt to make the differences more apparent to myself.
 
 	version: '3.3'
 
@@ -35,8 +35,21 @@ Next, I wanted to run Kafka Connect in distributed mode, pulling that same data 
 	      - ./connect-input-file:/tmp
 
 
-In order for this container to interact with the already running Kafka broker, I had to add this container to the existing network.
+In order for this container to interact with the already running Kafka broker, I had to add this container to the existing network by running the following:
 
+    docker network connect kafka-connect-crash-course_default connect-distributed
+
+where kafka-connect-crash-course_default is the network created by the original `docker-compose` file. You can get the network name by running:
+
+    $ docker network ls
+
+	NETWORK ID          NAME                                 DRIVER              SCOPE
+	938a3db19507        bridge                               bridge              local
+	cff74b7d60e4        build-system_sonarnet                bridge              local
+	b93a229f4eb2        host                                 host                local
+	da76ab07af40        kafka-connect-crash-course_default   bridge              local
+
+Once you've completed this step, you can bring up the newly created docker-compose file for the connect-distributed service by running the usual `docker-connect up` command. You should then be able to query the REST API by running `curl http://localhost:18083/connectors` to get a list of currently running connectors, which should be an empty list.
 
 `TODO list rest`
 
