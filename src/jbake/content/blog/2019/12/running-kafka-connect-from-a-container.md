@@ -51,6 +51,33 @@ where kafka-connect-crash-course_default is the network created by the original 
 
 Once you've completed this step, you can bring up the newly created docker-compose file for the connect-distributed service by running the usual `docker-connect up` command. You should then be able to query the REST API by running `curl http://localhost:18083/connectors` to get a list of currently running connectors, which should be an empty list.
 
+Next, I created a JSON file, which pulled properties from the `connect-file-sink.properties` file and used this to configure the connector instance:
+
+	curl -XPUT -H "Content-Type: application/json"  --data "@kafka-connect-distributed/config.json" http://localhost:18083/connectors/file-sink-connector/config | jq
+
+If all goes well with the configuration, you should see an output similar to the following:
+
+	{
+	  "name": "file-sink-connector",
+	  "config": {
+	    "name": "file-sink-connector",
+	    "connector.class": "org.apache.kafka.connect.file.FileStreamSinkConnector",
+	    "tasks.max": "1",
+	    "topics": "simple-connect",
+	    "file": "/tmp/my-output-file.txt",
+	    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+	    "value.converter": "org.apache.kafka.connect.storage.StringConverter"
+	  },
+	  "tasks": [
+	    {
+	      "connector": "file-sink-connector",
+	      "task": 0
+	    }
+	  ],
+	  "type": "sink"
+	}
+
+
 `TODO list rest`
 
 However, I'd like to try and go the next step and deploy a connector in distributed mode, since this is how we tend to use it in production at my day job. This would, hopefully, allow us to scale up or down, when needed.
