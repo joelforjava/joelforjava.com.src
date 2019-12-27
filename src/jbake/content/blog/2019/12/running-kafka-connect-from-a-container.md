@@ -1,5 +1,5 @@
 title=Running a Kafka Connector Inside a Container (Docker)
-date=2019-12-22
+date=2020-01-22
 type=post
 tags=kafka,docker,kafka connect,java
 status=published
