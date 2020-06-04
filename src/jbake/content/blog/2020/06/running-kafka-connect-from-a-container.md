@@ -8,7 +8,7 @@ Everywhere you look these days in the software development world, you'll find co
 
 I'm planning on writing a series of articles that go through various stages of deploying Kafka Connect in a containerized environment. For this article, I plan on getting to the point of deploying a multi-node distributed connector using docker. I will use one source connector in standalone mode that will be used to populate a Kafka topic with data and I will deploy a sink connector in distributed mode to pull the data back out.
 
-Later articles will explore deploying other sink connectors in distributed mode, including the Kafka-Kinesis Connector, via containers. For this article, I will be using docker and postman and will attempt deployment via Kubernetes in a future article. I am by no means an expert in any container technology, but I can mostly get around using containers in docker. So, this is a learning experience on multiple fronts for me.
+Later articles will explore deploying other sink connectors in distributed mode, including the Kafka-Kinesis Connector, via containers. For this article, I will be using `docker` and `podman` and will attempt deployment via Kubernetes in a future article. I am by no means an expert in any container technology, but I can mostly get around using containers in docker. So, this is a learning experience on multiple fronts for me.
 
 ### Picking a Kafka Container ###
 
@@ -104,11 +104,11 @@ If all goes well with the configuration, you should see an output similar to the
 
 At this point, as long as data was already in the `simple-connect` topic, then you should see output in `distributed-connector/connect-output-file/my-output-file.txt`.
 
-### Step 3: Running multiple connect-distributed instances ###
+### Step 3: Scaling up connect-distributed instances ###
 
-For this step, I did a little cleanup with the docker-compose files and all of the various plugin config files. Granted, when I go to finally try this with the Kafka-Kinesis Connector, or with any setup that requires connecting to external services, I'll probably have to stick with a setup closer to that which was used in Step 2. However, I wanted to at least try to clean things up a little and put everything into a single `docker-compose.yml` file. This can be seen in the `step/3` branch.
+For this step, I did a little cleanup with the docker-compose files and all of the various plugin config files. Granted, when I go to finally try this with the Kafka-Kinesis Connector, or with any setup that requires connecting to external services, I'll probably have to stick with a setup closer to that which was used in Step 2. However, I wanted to at least try to clean things up a little and put everything into a single `docker-compose.yml` file for completeness' sake. This can be seen in the `step/3` branch.
 
-I moved the 'standalone' config files into a new directory and renamed the directory used for the 'distributed' configuration files. Beyond dealing with the moving around of the files, nothing else really changed. Also, prior to running this new setup, I had to remove the old containers due to naming conflicts. You could rename the containers used in the new file instead, but I decided to keep the names the same.
+I moved the 'standalone' config files into a new directory and renamed the directory used for the 'distributed' configuration files. Beyond dealing with the moving around of the files, nothing else really changed. Also, if you didn't run `docker-compose down` prior to starting this, you'll have to go in and remove the old containers. Otherwise, there will be naming conflicts on the connector names for `kafka`, `zookeeper`, and `connect-standalone`. You could rename the containers used in the new docker compose file instead, but I decided to keep the names the same.
 
 Now, we can finally take a look at the change required for the `connect-distributed` service.
 
@@ -128,10 +128,42 @@ Now, we can finally take a look at the change required for the `connect-distribu
       volumes:
         - ./distributed/connect-output-file:/tmp
 
-In order to create multiple instances of a service, you can't give a container name, so that part is commented out. You also can't do an explicit port mapping, e.g. 18083 on the host to 8083 on the container.
+In order to scale out a docker compose service, you can't provide a hard-coded container_name value, so that part is commented out. You also can't do an explicit port mapping, e.g. `18083:8083`, but you can use a port range, such as `"8083-8093:8083"`. In the example above, I let Docker assign the ports. 
+
+The example also lists 4 replicas, but this setting is only valid in Swarm mode and is otherwise ignored. In version 2 of the docker compose files, there was a `scale` parameter that could be used but it does not have a true equivalent in version 3 unless you count the Swarm setting.
+
+For this step, I want to try running 3 instances of the connect-distributed service, so I enter the following command:
+
+    docker-compose up --scale connect-distributed=3
+
+Soon, you should see logging outputs for the various services, including the 3 instances of the connect-distributed service.
+
+Whether or not you mapped a port range for the connect-distributed service, you should then check the containers to see what host ports were assigned to the instances.
+
+    docker ps 
+
+You should see output similar to below:
+
+    CONTAINER ID        IMAGE                                COMMAND                  CREATED             STATUS              PORTS                                                NAMES
+    cd7c061d9ef2        docker-compose_connect-distributed   "start-kafka.sh"         35 seconds ago      Up 34 seconds       0.0.0.0:32776->8083/tcp                              docker-compose_connect-distributed_3
+    c4eb751169be        docker-compose_connect-distributed   "start-kafka.sh"         35 seconds ago      Up 34 seconds       0.0.0.0:32775->8083/tcp                              docker-compose_connect-distributed_1
+    aa62908512ff        docker-compose_connect-standalone    "start-kafka.sh"         35 seconds ago      Up 34 seconds       0.0.0.0:8083->8083/tcp                               connect-standalone
+    7722da0e7e48        docker-compose_connect-distributed   "start-kafka.sh"         35 seconds ago      Up 34 seconds       0.0.0.0:32774->8083/tcp                              docker-compose_connect-distributed_2
+
+I've truncated the output to only show the connect containers. In this case, Docker assigned ports `32774` through `32776` to the scaled out connect-distributed services.
+
+Now you should be able to perform the steps as done in Step 2 for querying the Connect REST API and for pushing a configuration by making use of one of the mapped ports.
+
+Once the configuration is pushed, the `file-sink-connector` connector does its job and pulls the data from Kafka, saving the data to the `distributed/connect-output-file` directory. In addition, you can query Kafka using the Consumer Groups shell script to verify.
+
+    docker exec -it kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --describe --all-groups
+
+For the new version of the simple-connect topic, we created 3 partitions and then set `tasks.max` in the sink connector to 3, which resulted in one task per container and the summary below:
+
+        GROUP                       TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID                                                                   HOST            CLIENT-ID
+    connect-file-sink-connector simple-connect  1          4667            4667            0               connector-consumer-file-sink-connector-1-f009d64b-b2ad-42e9-be14-a77b9acfc6c0 /172.23.0.6     connector-consumer-file-sink-connector-1
+    connect-file-sink-connector simple-connect  0          4666            4666            0               connector-consumer-file-sink-connector-0-e413eb56-30ec-4a3b-89fc-bf4b2aea01a9 /172.23.0.5     connector-consumer-file-sink-connector-0
+    connect-file-sink-connector simple-connect  2          4667            4667            0               connector-consumer-file-sink-connector-2-c34e154b-8efb-4b41-aea0-a133a5f8556c /172.23.0.7     connector-consumer-file-sink-connector-2
 
 
-
-`TODO list rest`
-
-However, I'd like to try and go the next step and deploy a connector in distributed mode, since this is how we tend to use it in production at my day job. This would, hopefully, allow us to scale up or down, when needed.
+This concludes, for now, my experiment to run a sink connector in distributed mode all via Docker containers. This should come in handy in helping to migrate some of our Kafka Connectors from Virtual Machines to containers. My next steps will most likely be either trying this with Kubernetes or trying to get another plugin working, such as the Kafka-Kinesis Connector or the Elasticsearch connector. I'm sure it'll be all of the above at some point. Thank you, if you've read this far. I hope this has been useful to someone.
