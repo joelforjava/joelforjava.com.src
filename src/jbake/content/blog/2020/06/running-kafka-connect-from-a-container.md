@@ -4,22 +4,24 @@ type=post
 tags=kafka,docker,kafka connect,java
 status=published
 ~~~~~~
-Everywhere you look these days in the software development world, you'll find containers in use in a variety of situations and by a vast number of developers and companies. `TODO - talk more about containers`
+Everywhere you look these days in the software development world, you'll find containers in use in a variety of situations and by a vast number of developers and companies. [This article](https://www.docker.com/resources/what-container) from Docker does a good job of explaining containers. However, containers go far beyond Docker, including [Kubernetes](https://kubernetes.io), [Apache Mesos](http://mesos.apache.org), and [Red Hat OpenShift Container Platform](https://docs.openshift.com/container-platform/4.4/welcome/index.html) among others.
 
 I'm planning on writing a series of articles that go through various stages of deploying Kafka Connect in a containerized environment. For this article, I plan on getting to the point of deploying a multi-node distributed connector using docker. I will use one source connector in standalone mode that will be used to populate a Kafka topic with data and I will deploy a sink connector in distributed mode to pull the data back out.
 
-Later articles will explore deploying other sink connectors in distributed mode, including the Kafka-Kinesis Connector, via containers. For this article, I will be using `docker` and `podman` and will attempt deployment via Kubernetes in a future article. I am by no means an expert in any container technology, but I can mostly get around using containers in docker. So, this is a learning experience on multiple fronts for me.
+Later articles will explore deploying other sink connectors in distributed mode, including the Kafka-Kinesis Connector, via containers. For this article, I will be using [Docker](https://www.docker.com) via [Docker Compose](https://docs.docker.com/compose/) and [Podman](https://podman.io/) via [Podman Compose](https://github.com/containers/podman-compose). I will dig deeper into Podman and attempt deployment via Kubernetes in a future article. I am by no means an expert in any container technology, but I can mostly get around using containers in Docker. So, this is a learning experience on multiple fronts for me.
+
+<!--more-->
 
 ### Picking a Kafka Container ###
 
-For starters, we need a Kafka container! There are several to choose from, including [wurstmeister/kafka-docker](https://github.com/wurstmeister/kafka-docker), [Bitnami](https://hub.docker.com/r/bitnami/kafka/), and [Confluent](https://docs.confluent.io/current/quickstart/ce-docker-quickstart.html). I considered giving the Confluent version a try, but I'm not very familiar with the Confluent Platform and the Control Center, so I wasn't sure if there were any 'gotchas' when using it versus something like wurstmeister. Maybe if time permits at some point in the future, I can come back and give Confluent a better look so that I can get a better idea of what it offers on top of standard Apache Kafka. I decided to go with wurstmeister for this article. 
+For starters, we need a Kafka container! There are several to choose from, including [wurstmeister/kafka-docker](https://github.com/wurstmeister/kafka-docker), [Bitnami](https://hub.docker.com/r/bitnami/kafka/), and [Confluent](https://docs.confluent.io/current/quickstart/ce-docker-quickstart.html). I considered giving the Confluent version a try, but I'm not very familiar with the Confluent Platform and the Control Center, so I wasn't sure if there were any 'gotchas' when using it versus something like wurstmeister. Maybe I'll find the time to come back and give Confluent a better look in future articles. I decided to go with wurstmeister for this article. 
 
-While researching this, I found an excellent [dev.to article](https://dev.to/thegroo/kafka-connect-crash-course-1chd) that goes over how to deploy a connector in standalone mode. I used this as my starting point with the expectation that I would eventually end up with a container setup that would be usable to connect to virtually any Kafka broker and send data into Kinesis Firehose (for the Kafka-Kinesis Connector).
+While researching this, I found an excellent [dev.to article](https://dev.to/thegroo/kafka-connect-crash-course-1chd) that goes over how to deploy a connector in standalone mode. I used this as my starting point with the hopes that I would eventually end up with a container setup that would be usable to connect to virtually any Kafka broker and send data into Kinesis Firehose (for the Kafka-Kinesis Connector).
 
 
 ### Step 1: Getting data into Kafka ###
 
-I went ahead and cloned the repo from the dev.to article:
+I started out by cloning the repo from the previously referenced dev.to article:
 
     git clone git@github.com:stockgeeks/docker-compose.git
 
@@ -27,7 +29,7 @@ I more or less ran the Docker Compose file as discussed in that article, by runn
 
     $ docker exec -it kafka /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server kafka:9092 --topic simple-connect --from-beginning
 
-As I worked through the examples on this page, I decided to go back and create a [separate project](https://github.com/joelforjava/kafka-connect-container-examples) that used the stockgeeks repo as the starting point. I will add to this repo as I try out different things and container technologies.
+As I worked through the examples on this page, I decided to go back and create a [separate project](https://github.com/joelforjava/kafka-connect-container-examples) that used the stockgeeks repo as the starting point. I will add to this repo as I try out different things and container technologies. You can checkout this repo by running `git clone git@github.com:joelforjava/kafka-connect-container-examples.git`. From this point forward, this is the project I will be using.
 
 ### Step 2: Getting data back out of Kafka ###
 
@@ -72,7 +74,7 @@ Once the container is created, I can then run the following:
 
     docker network connect kafka-connect-crash-course_default connect-distributed
 
-Once you've connected the distributed container to the network, you can start up the connect-distributed service by running the usual `docker-connect up` command. You should then be able to query the REST API by running `curl http://localhost:18083/connectors` to get a list of currently running connectors, which should be an empty list.
+Once you've connected the container with the sink connector (`connect-distributed`) to the network, you can start up the service by running the `docker-connect up` command. You should then be able to query the REST API by running `curl http://localhost:18083/connectors` to get a list of currently running connectors, which should be an empty list.
 
 Next, I created a JSON file, which pulled properties from the `connect-file-sink.properties` file and used this to configure the connector instance:
 
@@ -106,9 +108,9 @@ At this point, as long as data was already in the `simple-connect` topic, then y
 
 ### Step 3: Scaling up connect-distributed instances ###
 
-For this step, I did a little cleanup with the docker-compose files and all of the various plugin config files. Granted, when I go to finally try this with the Kafka-Kinesis Connector, or with any setup that requires connecting to external services, I'll probably have to stick with a setup closer to that which was used in Step 2. However, I wanted to at least try to clean things up a little and put everything into a single `docker-compose.yml` file for completeness' sake. This can be seen in the `step/3` branch.
+For this step, I did a little cleanup with the Docker Compose files and all of the various plugin config files. This can be seen in the `step/3` branch. Before going any further, I had to run `docker-compose down` to ensure the containers from the previous step are removed. Failure to do this will cause conflicts when you go to start up the instances listed in this step. Alternatively, you could rename the containers in this step, but I chose to keep the existing names.
 
-I moved the 'standalone' config files into a new directory and renamed the directory used for the 'distributed' configuration files. Beyond dealing with the moving around of the files, nothing else really changed. Also, if you didn't run `docker-compose down` prior to starting this, you'll have to go in and remove the old containers. Otherwise, there will be naming conflicts on the connector names for `kafka`, `zookeeper`, and `connect-standalone`. You could rename the containers used in the new docker compose file instead, but I decided to keep the names the same.
+I moved the 'standalone' config files into a new directory and renamed the directory used for the 'distributed' configuration files. I increased the `tasks.max` value to `3` in an effort to see the tasks distributed across the scaled-up instances. 
 
 Now, we can finally take a look at the change required for the `connect-distributed` service.
 
@@ -128,9 +130,9 @@ Now, we can finally take a look at the change required for the `connect-distribu
       volumes:
         - ./distributed/connect-output-file:/tmp
 
-In order to scale out a docker compose service, you can't provide a hard-coded container_name value, so that part is commented out. You also can't do an explicit port mapping, e.g. `18083:8083`, but you can use a port range, such as `"8083-8093:8083"`. In the example above, I let Docker assign the ports. 
+In order to scale out a docker compose service, you can't provide a hard-coded `container_name` value, so that part is commented out and should ultimately be removed. You also can't do an explicit port mapping, e.g. `18083:8083`, but you can use a port range, such as `"18083-18093:8083"`. In the example above, I let Docker assign the ports. 
 
-The example also lists 4 replicas, but this setting is only valid in Swarm mode and is otherwise ignored. In version 2 of the docker compose files, there was a `scale` parameter that could be used but it does not have a true equivalent in version 3 unless you count the Swarm setting.
+The example also lists 4 `replicas`, but this setting is only valid in Swarm mode and is otherwise ignored. In version 2 of the docker compose files, there was a `scale` parameter that could be used but it does not have a true equivalent in version 3 unless you count the Swarm setting.
 
 For this step, I want to try running 3 instances of the connect-distributed service, so I enter the following command:
 
@@ -166,4 +168,4 @@ For the new version of the simple-connect topic, we created 3 partitions and the
     connect-file-sink-connector simple-connect  2          4667            4667            0               connector-consumer-file-sink-connector-2-c34e154b-8efb-4b41-aea0-a133a5f8556c /172.23.0.7     connector-consumer-file-sink-connector-2
 
 
-This concludes, for now, my experiment to run a sink connector in distributed mode all via Docker containers. This should come in handy in helping to migrate some of our Kafka Connectors from Virtual Machines to containers. My next steps will most likely be either trying this with Kubernetes or trying to get another plugin working, such as the Kafka-Kinesis Connector or the Elasticsearch connector. I'm sure it'll be all of the above at some point. Thank you, if you've read this far. I hope this has been useful to someone.
+This concludes, for now, my experiment to run a sink connector in distributed mode all via Docker. This should come in handy in helping to migrate some of our Kafka Connectors from Virtual Machines to containers. My next steps will most likely be either trying this with Kubernetes or trying to get another plugin working, such as the Kafka-Kinesis Connector or the Elasticsearch connector. I'm sure it'll be all of the above at some point. Thank you, if you've read this far. I hope this has been useful to someone.

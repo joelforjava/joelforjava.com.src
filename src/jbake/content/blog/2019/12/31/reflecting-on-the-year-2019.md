@@ -2,7 +2,7 @@ title=Reflecting on my 2019
 date=2019-12-31
 type=post
 tags=personal,general
-status=published
+status=draft
 ~~~~~~
 I'm not quite sure how to feel about 2019 with regards to my career and the technology I've been able to work with. As you may have gathered from the title of this blog, I come from a, more or less, 100% Java development background. I'm used to working in an object oriented fashion and used to working in the context of a web backend, using technologies like Spring, Struts, Hibernate, and all the things that go into making good, or at least decent Java/JVM code, like Findbugs, Sonarqube, and Checkstyle. I also like working with front-end technologies, like Angular, Vue.js, and good old-fashioned JavaScript. 2019, for me, turned out to be a very different year technology-wise than I could have ever expected. This isn't intended to be a complaint, but rather just an observation on how things have diverged a bit for me.
 
