@@ -12,7 +12,7 @@
 					<section class="box text-style1">
 						<div class="inner">
 							<p>
-								Wouldn't an <strong>ad</strong> look fantastic here?
+								<a href="https://twitter.com/search?q=%23blacklivesmatter" target="_blank">#BlackLivesMatter</a>
 							</p>
 						</div>
 					</section>
@@ -34,7 +34,7 @@
 
 				<!-- Copyright -->
 					<ul id="copyright">
-						<li>&copy; 2016 - 2019</li>
+						<li>&copy; 2016 - 2020</li>
                         <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
                         <li>Baked with <a href="http://jbake.org">JBake ${version}</a></li>
 					</ul>
