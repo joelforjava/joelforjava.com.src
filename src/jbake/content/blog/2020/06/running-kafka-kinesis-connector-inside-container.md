@@ -7,6 +7,8 @@ status=draft
 
 In my previous [article](/blog/2020/06/running-kafka-connect-from-a-container.html), we walked through running a distributed Kafka Connect setup via Docker. In this article, I will be turning my attention to the Kafka Kinesis Connector and going through the steps to get it working in distributed mode and connecting to external services, e.g. an external Kafka cluster and The Kinesis Firehose service.
 
+The overall intention of this is to go through how to connect a containerized application to external, non-containerized applications. We could just as easily replace the Kafka Kinesis Connector with something like the Elasticsearch Connector.
+
 <!--more-->
 
 ### Creating the Dockerfile ###
