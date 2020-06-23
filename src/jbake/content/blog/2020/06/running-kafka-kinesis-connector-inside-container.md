@@ -5,9 +5,9 @@ tags=kafka,docker,kafka connect,java
 status=draft
 ~~~~~~
 
-In my previous [article](/blog/2020/06/running-kafka-connect-from-a-container.html), we walked through running a distributed Kafka Connect setup via Docker. In this article, I will be turning my attention to the Kafka Kinesis Connector and going through the steps to get it working in distributed mode and connecting to external services, e.g. an external Kafka cluster and The Kinesis Firehose service.
+In my previous [article](/blog/2020/06/running-kafka-connect-from-a-container.html), we walked through running a distributed Kafka Connect setup via Docker. In this article, I will be turning my attention to the Kinesis Kafka Connector and going through the steps to get it working in distributed mode and connecting to external services, e.g. an external Kafka cluster and The Kinesis Firehose service.
 
-The overall intention of this is to go through how to connect a containerized application to external, non-containerized applications. We could just as easily replace the Kafka Kinesis Connector with something like the Elasticsearch Connector.
+The overall intention of this is to go through how to connect a containerized application to external, non-containerized applications. We could just as easily replace the Kinesis Kafka Connector with something like the Elasticsearch Connector.
 
 <!--more-->
 
@@ -36,13 +36,21 @@ We start with creating the Dockerfile that will be used to build the container i
 
     RUN chmod a+x /usr/bin/start-kafka.sh
 
-This looks similar to the Dockerfile used in the last post, except now we're adding an argument so that we can build an image for a specific cluster, with the default being `cluster_1`. We're also adding environment variables for AWS, which will be required when sending data to Kinesis.
+This looks similar to the Dockerfile used in the last post, except now we're adding an argument so that we can build an image for a specific cluster, with the default being `cluster_1`. We're also adding environment variables for AWS, which will be required when sending data to Kinesis. There are several other ways to handle this, but this is the solution we will be going with for now.
 
 From here, we can either do everything with docker via the command line, or we can wire up everything via Docker Compose.
 
+Confession: I'm not the greatest with networking. It's not something I've had to work with a lot in the past, beyond making sure an application can reach another application, e.g. Bing, Google, or other external services. I wasted way too much time working on the networking, when the solution was rather simple.
+
+I went through a whole exercise of starting with a `host` network and then trying to do all this complicated work with creating different networks in an effort to have it the container talk to AWS and my local Kafka cluster.
+
+So, rather than go through all that, I'll just post the final solution that works on my network. I'm sure there would be more involved if we were doing this in a production environment where we would want to limit access to the outside world. Maybe I'll come back to that scenario if I ever go that far with my work.
+
+So, we start with the standard `docker` command:
+
 `TODO put command line stuff here`
 
-Choosing the Compose route, my first attempt results in the following:
+Choosing the Compose route, we can use the following:
 
 <?prettify?>
 
