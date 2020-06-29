@@ -59,7 +59,7 @@ So, we start with the standard `docker` commands:
 
 The key part for me, was using the `--add-host` option. This will add a new entry into `/etc/hosts`. These two URLs, `kafka.joelforjava.localhost` and `localstack.joelforjava.localhost` are used in property files for the Kinesis Kafka Connector. 
 
-*Side Note*: I've temporarily updated my version of the Connector to use [LocalStack](https://localstack.cloud) rather than actually connecting to AWS itself. For many reasons, I don't currently have a personal AWS account and I also can't legally do these kinds of things at my day job and still be able to blog about them, so I had to find a way to test the connector out on my personal systems.
+*Side Note*: I've temporarily updated my version of the Connector to use [LocalStack](https://localstack.cloud) rather than actually connecting to AWS itself. For many reasons, I don't currently have a personal AWS account and I also can't easily do these kinds of things at my day job and still be able to blog about them, so I had to find a way to test the connector out on my personal systems.
 
 Choosing the Compose route, I went with the following:
 
