@@ -47,5 +47,75 @@ You could use the `Type.STRING` type and pass the stringified JSON object that w
 
 If you don't need to worry about filtering data into multiple firehoses based on keywords or phrases, you could create a new property, say `deliveryStreamNames` that accepts more than one Firehose Delivery Stream name, if all you need to do is send to multiple Firehoses. You could then push a configuration per topic or topics. However, if you're consuming from a lot of topics, this will get unwieldly fast. This situation is one of the primary reasons we went with the one config for all topics approach.
 
-I'm going to attempt the second approach, as ugly as it may end up being it may be the best bet to untether the connector from the YAML file.
+For the moment, let's attempt the second approach, as ugly as it may end up being. It may be the quickest way to untether the connector from the YAML file but is it the best? That remains to be seen.
+
+### Adding a parseJSON method ###
+
+Thanks to Kafka's dependency on Jackson, the Connector project has it as a transitive dependency. We can add a method to `MappingConfigParser`, like so:
+
+    public static Optional<ClusterMapping> parseJson(String jsonData) {
+        ClusterMapping mapping = null;
+
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            mapping = mapper.readValue(jsonData, ClusterMapping.class);
+        } catch (IOException e) {
+            log.error("There was an error trying to read the mapping data from the provided string.");
+        }
+        return Optional.ofNullable(mapping);
+    }
+
+As long as we pass valid JSON, we can convert it to a `ConfigMapping`! We can exercise this functionality with a unit test:
+
+    @Test
+    void testParseJsonCanParseStringWithNewlinesIntoClusterMapping() {
+        String jsonData = "    {\n" +
+                "        \"clusterName\": \"cluster_1\",\n" +
+                "        \"streams\": [\n" +
+                "            {\n" +
+                "                \"name\": \"TEMPERATURES.TOPIC\",\n" +
+                "                \"destinations\": [ \"TEMPERATURES-STREAM\", \"S3-TEMPERATURES-STREAM\", \"WEATHER-STREAM\" ]\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\": \"BIOMETRICS.TOPIC\",\n" +
+                "                \"destinations\": [ \"BIOMETRICS-STREAM\", \"S3-BIOMETRICS-STREAM\" ],\n" +
+                "                \"filters\": [\n" +
+                "                    {\n" +
+                "                        \"sourceTopic\": \"BIOMETRICS.TOPIC\",\n" +
+                "                        \"destinationStreamNames\": [ \"BLOODPRESSURE-STREAM\" ],\n" +
+                "                        \"keywords\": [ \"Blood pressure\", \"Bloodpressure\", \"blood pressure\" ]\n" +
+                "                    },\n" +
+                "                    {\n" +
+                "                        \"sourceTopic\": \"BIOMETRICS.TOPIC\",\n" +
+                "                        \"destinationStreamNames\": [ \"HEARTRATE-STREAM\" ],\n" +
+                "                        \"startingPhrases\": [ \"Heart rate\" ]\n" +
+                "                    }\n" +
+                "                ]\n" +
+                "            }\n" +
+                "        ]\n" +
+                "    }";
+
+        Optional<ClusterMapping> mapping = MappingConfigParser.parseJson(jsonData);
+        Assert.assertTrue(mapping.isPresent());
+
+        ClusterMapping clusterMapping = mapping.get();
+        Assert.assertEquals(clusterMapping.getClusterName(), "cluster_1");
+        Assert.assertEquals(clusterMapping.getStreams().size(), 2);
+    }
+
+Everything seems to work fine! However, adding this mapping as a property in the property file is ... less than ideal. Below are the contents of an example property file, with the `streamMappings` property being a mini-fied version of the JSON at the top of the page.
+
+    name=cluster_3
+    connector.class=com.amazon.kinesis.kafka.FirehoseSinkConnector
+    tasks.max=25
+    topics=TEMPERATURES.TOPIC,BIOMETRICS.TOPIC
+    region=us-east-1
+    batch=true
+    batchSize=500
+    batchSizeInBytes=3670016
+    streamMappings={"clusterName": "cluster_3","streams": [{"name": "TEMPERATURES.TOPIC","destinations": [ "TEMPERATURES-STREAM", "S3-TEMPERATURES-STREAM", "WEATHER-STREAM" ]},{"name": "BIOMETRICS.TOPIC","destinations": [ "BIOMETRICS-STREAM", "S3-BIOMETRICS-STREAM" ],"filters": [{"sourceTopic": "BIOMETRICS.TOPIC","destinationStreamNames": [ "BLOODPRESSURE-STREAM" ],"keywords": [ "Blood pressure", "Bloodpressure", "blood pressure" ]},{"sourceTopic": "BIOMETRICS.TOPIC","destinationStreamNames": [ "HEARTRATE-STREAM" ],"startingPhrases": [ "Heart rate" ]}]}]}
+
+This mapping is fairly small considering it contains only two topics. What if we had to work with 10, 20, or more?
+
+`TODO` - how would this look if we checked the plugin's config?
 
